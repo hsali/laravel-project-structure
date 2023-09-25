@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+
+use App\Models\Task;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
 class TaskController extends Controller
 {
     public function index()
@@ -18,12 +23,19 @@ class TaskController extends Controller
         return view('tasks.create');
     }
 
-    public function store(StoreTaskRequest $request)
+    public function store(Request $request)
     {
         $this->authorize('manage tasks');
 
-        Task::create($request->validated());
 
+//
+//        $validator = Validator::make($request->all(), [
+//            'name' => 'required',
+//        ])->validate();
+//        $validated = $validator->validated();
+//        dd($validated);
+//        $validated = $validator->only(['name']);
+        Task::create($request->only(["name"]));
         return redirect()->route('tasks.index');
     }
 
@@ -34,11 +46,15 @@ class TaskController extends Controller
         return view('tasks.edit', compact('task'));
     }
 
-    public function update(UpdateTaskRequest $request, Task $task)
+    public function update(Request $request, Task $task)
     {
         $this->authorize('manage tasks');
 
-        $task->update($request->validated());
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ])->validate();
+        $validated = $validator->validated();
+        $task->update($validated);
 
         return redirect()->route('tasks.index');
     }
