@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 
+use App\Jobs\ProcessPodcast;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
@@ -12,7 +14,9 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::all();
-
+        Log::info("dispatching ", ["job_name"=>"ProcessPodcast"]);
+        ProcessPodcast::dispatch();
+        Log::info("dispatched ", ["job_name"=>"ProcessPodcast"]);
         return view('tasks.index', compact('tasks'));
     }
 
@@ -42,6 +46,8 @@ class TaskController extends Controller
     public function edit(Task $task)
     {
         $this->authorize('manage tasks');
+
+
 
         return view('tasks.edit', compact('task'));
     }
